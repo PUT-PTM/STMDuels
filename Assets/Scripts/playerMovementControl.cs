@@ -8,6 +8,7 @@ public class playerMovementControl : MonoBehaviour {
 	public KeyCode moveLeft;
 	public KeyCode moveRight;
 	public KeyCode shootKey;
+	public int playerDirection;
 	
 	// Use this for initialization
 	void Start () {
@@ -17,14 +18,19 @@ public class playerMovementControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		if (Input.GetKey (moveRight))
+		if (Input.GetKey (moveRight)) {
 			transform.position += new Vector3 (speed * Time.deltaTime, 0.0f, 0.0f);
-		else if (Input.GetKey (moveLeft))
+			playerDirection = 1;
+		} else if (Input.GetKey (moveLeft)) {
 			transform.position -= new Vector3 (speed * Time.deltaTime, 0.0f, 0.0f);
-		else if (Input.GetKey (moveUp))
+			playerDirection = 2;
+		} else if (Input.GetKey (moveUp)) {
 			transform.position += new Vector3 (0.0f, speed * Time.deltaTime, 0.0f);
-		else if (Input.GetKey (moveDown))
+			playerDirection = 3;
+		} else if (Input.GetKey (moveDown)) {
 			transform.position -= new Vector3 (0.0f, speed * Time.deltaTime, 0.0f);
+			playerDirection = 4;
+		}
 		
 		/* bool shoot = Input.GetKeyDown (shootKey);
 		

@@ -1,31 +1,17 @@
 ﻿using UnityEngine;
+using System.Collections;
 
-public class BulletMovement : MonoBehaviour
-{
+public class bulletMovement : MonoBehaviour {
 
-	// Prędkość pocisku
-	public Vector2 speed = new Vector2(10, 10);
-	
-	// Kierunek pocisku
-	public Vector2 direction = new Vector2(0, 1);
-	
-	private Vector2 movement;
+	public float maxSpeed = 5f;
 
-	private Rigidbody2D myRigidBody;
+	// Update is called once per frame
+	void Update () {
 
-	void Start () {
-		myRigidBody = GetComponent<Rigidbody2D>();
-	}
+		Vector3 pos = transform.position;
+		Vector3 velocity = new Vector3 (0, maxSpeed * Time.deltaTime, 0);
+		pos += transform.rotation * velocity;
+		transform.position = pos;
 	
-	void Update()
-	{
-		movement = new Vector2(
-			speed.x * direction.x,
-			speed.y * direction.y);
-	}
-	
-	void FixedUpdate()
-	{
-		myRigidBody.velocity = movement;
 	}
 }
