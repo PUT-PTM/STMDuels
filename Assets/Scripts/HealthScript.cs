@@ -1,31 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HealthScript : MonoBehaviour {
+public class healthScript : MonoBehaviour {
 
-	public int hp = 200;
+	public int hp = 10;
 
-	public bool isEnemy = true;
+	void OnTriggerEnter2D(){
+			
+		hp -= 1;
 
-	public AudioSource death;
+		if (hp <= 0)
+			Destroy (gameObject);
 
-	public AudioClip death2;
-
-	void OnTriggerEnter2D (Collider2D collider) {
-		ShotScript shot = collider.gameObject.GetComponent<ShotScript> ();
-		if (shot != null) {
-			if (shot.isEnemyShot != isEnemy)
-			{
-				hp -= shot.damage;
-
-				Destroy(shot.gameObject);
-
-				if (hp <= 0)
-				{
-					Destroy(gameObject);
-					death.PlayOneShot(death2);
-				}
-			}
-		}
 	}
 }

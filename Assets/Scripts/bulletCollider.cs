@@ -4,7 +4,6 @@ using System.Collections;
 public class bulletCollider : MonoBehaviour {
 
 	void OnTriggerEnter2D() {
-		Debug.Log ("Trigger!");
 		bulletDestroy ();
 	}
 	
