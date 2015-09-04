@@ -5,23 +5,34 @@ public class playerShooting : MonoBehaviour {
 
 	public GameObject bulletPrefab;
 
-	public KeyCode shootKey;
+	//public KeyCode shootKey;
 
 	playerMovementControl varDir;
 
 	public float fireDelay = 0.25f;
 	float cooldownTimer = 0;
+	float invulnTimer = 0;
 
 	void Start () {
 		varDir = GetComponent<playerMovementControl> ();
 	}
 
 	void Update () {
+
+		invulnTimer -= Time.deltaTime;
+		if (invulnTimer <= 0) {
+			gameObject.layer = 10;
+		}
+
 		cooldownTimer -= Time.deltaTime;
 
-		if(Input.GetKeyDown(shootKey) && cooldownTimer <= 0) {
+		if(Input.GetKeyDown(varDir.shootKey) && cooldownTimer <= 0) {
+
+			invulnTimer = 0.1f;
 
 			cooldownTimer = fireDelay;
+
+			gameObject.layer = 12;
 
 			if (varDir.playerDirection == 3)
 				Instantiate(bulletPrefab, transform.position, transform.rotation);
