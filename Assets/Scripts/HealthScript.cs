@@ -5,6 +5,8 @@ public class healthScript : MonoBehaviour {
 
 	public int hp = 10;
 	public GameObject bloodSplatter;
+	public GameObject Corpse;
+	public GameObject Executed;
 
 	void OnTriggerEnter2D(){
 			
@@ -12,8 +14,10 @@ public class healthScript : MonoBehaviour {
 
 		hp -= 1;
 
-		if (hp <= 0)
+		if (hp <= 0) {
+			Instantiate (Corpse, transform.position, transform.rotation);
 			Destroy (gameObject);
-
+			Instantiate (Executed, transform.position, transform.rotation);
+		}
 	}
 }
