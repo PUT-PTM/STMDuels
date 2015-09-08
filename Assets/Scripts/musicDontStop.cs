@@ -21,20 +21,4 @@ public class musicDontStop : MonoBehaviour {
 			Destroy(thisAudio);
 		}
 	}
-
-	/*public GameObject musicPlayer;
-
-	void Awake() {
-		musicPlayer = GameObject.Find ("BackgroundMusic");
-		if (musicPlayer == null) {
-			musicPlayer = this.gameObject;
-			musicPlayer.name = "BackgroundMusic";
-			DontDestroyOnLoad (musicPlayer);
-		} else {
-		if (this.gameObject.name!="BackgroundMusic"){
-				Destroy(this.gameObject);}
-		}
-	
-	}*/
-
 }

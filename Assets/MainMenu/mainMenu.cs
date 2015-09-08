@@ -18,7 +18,7 @@ public class mainMenu : MonoBehaviour {
 	IEnumerator LoadLevel () {
 		float fadeTime = GameObject.Find("Fading").GetComponent<fadingBlack>().BeginFade(1);
 		yield return new WaitForSeconds(fadeTime);
-		Application.LoadLevel(2);
+		Application.LoadLevel(3);
 	}
 
 	IEnumerator ExitGame() {
