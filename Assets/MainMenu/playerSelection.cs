@@ -22,6 +22,9 @@ public class playerSelection : MonoBehaviour {
 	public GUIStyle goBack;
 	public GUIStyle goNext;
 
+	public GameObject staticReady;
+	private arePlayersReady readyScript;
+
 	IEnumerator goMenu () {
 		float fadeTime = GameObject.Find("Fading").GetComponent<fadingBlack>().BeginFade(1);
 		yield return new WaitForSeconds(fadeTime);
@@ -36,7 +39,7 @@ public class playerSelection : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		readyScript = staticReady.gameObject.GetComponent<arePlayersReady> ();
 	}
 	
 	// Update is called once per frame
@@ -96,6 +99,7 @@ public class playerSelection : MonoBehaviour {
 		}
 
 		if (GUI.Button (new Rect(Screen.width - 190, 90, 100, 100), "", goNext)) {
+			readyScript.getReady();
 			StartCoroutine(goPlay());
 		}
 
