@@ -18,11 +18,10 @@
 #include "misc.h"
 #include "protocol.h"
 #include "stdlib.h"
-#include "math.h"
 
 volatile uint32_t ticker, downTicker;
 
-int acc1, acc2, acc3;
+float acc1, acc2, acc3;
 
 /*
  * The USB data must be 4 byte aligned if DMA is enabled. This macro handles
@@ -58,25 +57,24 @@ void OTG_FS_WKUP_IRQHandler(void);
 }
 #endif
 
+ GPIO_InitTypeDef setup_diody() {
+ 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+
+ 	GPIO_InitTypeDef  Diody;
+ 	Diody.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13| GPIO_Pin_14| GPIO_Pin_15;
+ 	Diody.GPIO_Mode = GPIO_Mode_OUT;
+ 	Diody.GPIO_OType = GPIO_OType_PP;
+ 	Diody.GPIO_Speed = GPIO_Speed_100MHz;
+ 	Diody.GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 	GPIO_Init(GPIOD, &Diody);
+ }
+
  setup_przycisk() {
  	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
  	GPIO_InitTypeDef  Przycisk;
  	Przycisk.GPIO_Pin = GPIO_Pin_0;
  	Przycisk.GPIO_Mode = GPIO_Mode_IN;
  	GPIO_Init(GPIOA, &Przycisk);
- }
-
- int16_t Round(float myfloat)
- {
-   double integral;
-   float fraction = (float)modf(myfloat, &integral);
-
-   if (fraction >= 0.5)
-     integral += 1;
-   if (fraction <= -0.5)
-     integral -= 1;
-
-   return (int)integral;
  }
 
 
@@ -90,90 +88,7 @@ int main(void)
 
 	SystemCoreClockUpdate();
 
-
-		    /* Enable the SPI periph */
-		    RCC_APB2PeriphClockCmd(LIS302DL_SPI_CLK, ENABLE);
-
-		    /* Enable SCK, MOSI and MISO GPIO clocks */
-		    RCC_AHB1PeriphClockCmd(LIS302DL_SPI_SCK_GPIO_CLK | LIS302DL_SPI_MISO_GPIO_CLK | LIS302DL_SPI_MOSI_GPIO_CLK, ENABLE);
-
-		    /* Enable CS  GPIO clock */
-		    RCC_AHB1PeriphClockCmd(LIS302DL_SPI_CS_GPIO_CLK, ENABLE);
-
-		    /* Enable INT1 GPIO clock */
-		    RCC_AHB1PeriphClockCmd(LIS302DL_SPI_INT1_GPIO_CLK, ENABLE);
-
-		    /* Enable INT2 GPIO clock */
-		    RCC_AHB1PeriphClockCmd(LIS302DL_SPI_INT2_GPIO_CLK, ENABLE);
-
-		    GPIO_PinAFConfig(LIS302DL_SPI_SCK_GPIO_PORT, LIS302DL_SPI_SCK_SOURCE, LIS302DL_SPI_SCK_AF);
-		    GPIO_PinAFConfig(LIS302DL_SPI_MISO_GPIO_PORT, LIS302DL_SPI_MISO_SOURCE, LIS302DL_SPI_MISO_AF);
-		    GPIO_PinAFConfig(LIS302DL_SPI_MOSI_GPIO_PORT, LIS302DL_SPI_MOSI_SOURCE, LIS302DL_SPI_MOSI_AF);
-
-		    GPIO_InitTypeDef GPIO_InitStructure;
-		    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-		    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
-		    /* SPI SCK pin configuration */
-		    GPIO_InitStructure.GPIO_Pin = LIS302DL_SPI_SCK_PIN;
-		    GPIO_Init(LIS302DL_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
-
-		    /* SPI  MOSI pin configuration */
-		    GPIO_InitStructure.GPIO_Pin =  LIS302DL_SPI_MOSI_PIN;
-		    GPIO_Init(LIS302DL_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
-
-		    /* SPI MISO pin configuration */
-		    GPIO_InitStructure.GPIO_Pin = LIS302DL_SPI_MISO_PIN;
-		    GPIO_Init(LIS302DL_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
-
-		    /* SPI configuration -------------------------------------------------------*/
-		    SPI_InitTypeDef  SPI_InitStructure;
-		    SPI_I2S_DeInit(LIS302DL_SPI);
-		    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-		    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-		    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-		    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-		    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-		    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
-		    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-		    SPI_InitStructure.SPI_CRCPolynomial = 7;
-		    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-		    SPI_Init(LIS302DL_SPI, &SPI_InitStructure);
-
-		    /* Enable SPI1  */
-		    SPI_Cmd(LIS302DL_SPI, ENABLE);
-
-		    /* Configure GPIO PIN for Lis Chip select */
-		    GPIO_InitStructure.GPIO_Pin = LIS302DL_SPI_CS_PIN;
-		    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		    GPIO_Init(LIS302DL_SPI_CS_GPIO_PORT, &GPIO_InitStructure);
-
-		    /* Deselect : Chip Select high */
-		    GPIO_SetBits(LIS302DL_SPI_CS_GPIO_PORT, LIS302DL_SPI_CS_PIN);
-
-		    /* Configure GPIO PINs to detect Interrupts */
-		    GPIO_InitStructure.GPIO_Pin = LIS302DL_SPI_INT1_PIN;
-		    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-		    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-		    GPIO_Init(LIS302DL_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
-
-		    GPIO_InitStructure.GPIO_Pin = LIS302DL_SPI_INT2_PIN;
-		    GPIO_Init(LIS302DL_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);
-
-		    LIS302DL_InterruptConfigTypeDef LIS302DL_InterruptStruct;
-		    /* Set configuration of Internal High Pass Filter of LIS302DL*/
-		    LIS302DL_InterruptStruct.Latch_Request = LIS302DL_INTERRUPTREQUEST_LATCHED;
-		    LIS302DL_InterruptStruct.SingleClick_Axes = LIS302DL_CLICKINTERRUPT_Z_ENABLE;
-		    LIS302DL_InterruptStruct.DoubleClick_Axes = LIS302DL_DOUBLECLICKINTERRUPT_Z_ENABLE;
-		    LIS302DL_InterruptConfig(&LIS302DL_InterruptStruct);
-
-		    LIS302DL_InitTypeDef  LIS302DL_InitStruct;
+	LIS302DL_InitTypeDef  LIS302DL_InitStruct;
 	   	/* Set configuration of LIS302DL*/
 	   	LIS302DL_InitStruct.Power_Mode = LIS302DL_LOWPOWERMODE_ACTIVE;
 	   	LIS302DL_InitStruct.Output_DataRate = LIS302DL_DATARATE_100;
@@ -187,17 +102,18 @@ int main(void)
 
 	   	/*inicjalizacja pakietu akcelerometru*/
 	   	accelerometer_t accelerometerPacket;
-	   	accelerometerPacket.start_flag=0xAA; //0xAA
-	   	accelerometerPacket.command=0xAC; //0xAC
-	   	accelerometerPacket.crc=0xFF;
+	   	accelerometerPacket.start_flag=0xAA;
+	   	accelerometerPacket.command=0xAC;
+	   	accelerometerPacket.crc=0x00;
 
 	   	/*inicjalizacja pakietu przycisku*/
 	   	button_t buttonPacket;
 	   	buttonPacket.start_flag=0xAA;
-	   	buttonPacket.command=0x38; //0x38
-	   	buttonPacket.crc=0xFF;
+	   	buttonPacket.command=0x38;
+	   	buttonPacket.crc=0x00;
 
 	   	setup_przycisk();
+	   	setup_diody();
 
 	while (1)
 	{
@@ -226,40 +142,43 @@ int main(void)
 			accelerometer_z=-accelerometer_z;
 		    }
 
-		for(i=0;i<1000000;i++){
+		for(i=0;i<500000;i++){
 
 			//petla opozniajaca
 
 		        }
 
-		accelerometerPacket.x=Round(accelerometer_x*0.83);
-		accelerometerPacket.y=Round(accelerometer_y*0.83);
-		accelerometerPacket.z=Round(accelerometer_z*0.95);
+		accelerometerPacket.x=(accelerometer_x*9.8f)/128-0.25f;
+		accelerometerPacket.y=(accelerometer_y*9.8f)/128-0.2f;
+		accelerometerPacket.z=(accelerometer_z*9.8f)/128-3.5f;
 
 
 		acc1=accelerometerPacket.x;
 		acc2=accelerometerPacket.y;
 		acc3=accelerometerPacket.z;
-		GPIO_ResetBits(GPIOD, GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15);
-		if(accelerometer_x<-20){
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_13);
-		}
-		if(accelerometer_x>20){
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_15);
-		}
-		if(accelerometer_y<-20){
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_12);
-		}
-		if(accelerometer_y>20){
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_14);
-		}
+
+
+					GPIO_ToggleBits(GPIOD, GPIO_Pin_15);
+
+
+					if(accelerometer_x>30){
+						GPIO_ToggleBits(GPIOD, GPIO_Pin_12);
+					}
+					if(accelerometer_y>30){
+						GPIO_ToggleBits(GPIOD, GPIO_Pin_13);
+					}
+					if(accelerometer_z>30){
+						GPIO_ToggleBits(GPIOD, GPIO_Pin_14);
+					}
+
+
 
 		VCP_send_buffer(&accelerometerPacket, sizeof(accelerometer_t));
 
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0))
 		        	buttonPacket.button_state=0xFF;
-					else
-					buttonPacket.button_state=0x00;
+		        else
+		        	buttonPacket.button_state=0x00;
 
 		VCP_send_buffer(&buttonPacket, sizeof(button_t));
 
@@ -272,16 +191,6 @@ int main(void)
 
 void init()
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-
-	GPIO_InitTypeDef  Diody;
-	Diody.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13| GPIO_Pin_14| GPIO_Pin_15;
-	Diody.GPIO_Mode = GPIO_Mode_OUT;
-	Diody.GPIO_OType = GPIO_OType_PP;
-	Diody.GPIO_Speed = GPIO_Speed_100MHz;
-	Diody.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOD, &Diody);
-
 	/* Setup SysTick or CROD! */
 	if (SysTick_Config(SystemCoreClock / 1000))
 	{

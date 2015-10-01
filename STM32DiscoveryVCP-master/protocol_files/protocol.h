@@ -14,9 +14,9 @@ typedef struct accelerometer{
 	//command type 0xAC
 	uint8_t start_flag;
 	uint8_t command;
-	int16_t x;
-	int16_t y;
-	int16_t z;
+	float x;
+	float y;
+	float z;
 	uint8_t crc;
 
 }accelerometer_t;
