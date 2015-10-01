@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\MainMenu\playerSelection.cs">
+    <Files>
+      <File FileName="Assets\MainMenu\playerSelection.cs" Line="21" Column="9" />
+      <File FileName="Assets\MainMenu\mainMenu.cs" Line="12" Column="2" />
+      <File FileName="Assets\Scripts\playerMovementControl.cs" Line="6" Column="2" />
+      <File FileName="Assets\Scripts\healthScript.cs" Line="7" Column="19" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
